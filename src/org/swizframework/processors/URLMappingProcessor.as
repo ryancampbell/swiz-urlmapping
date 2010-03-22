@@ -273,6 +273,8 @@ package org.swizframework.processors
 			{
 				var url:String = urlMapping.url;
 				
+				url = url.replace( /\*/g, "" );
+				
 				if( args != null )
 				{
 					for ( var i:int = 0; i < args.length; i++ )
