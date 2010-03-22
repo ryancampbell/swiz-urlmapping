@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<componentPackage>
+	
+	<component class="org.swizframework.processors.URLMappingProcessor" />
+	
+</componentPackage>
