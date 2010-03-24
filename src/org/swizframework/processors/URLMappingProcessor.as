@@ -63,8 +63,8 @@ package org.swizframework.processors
 			
 			// initialize the browser manager
 			browserManager = BrowserManager.getInstance();
-			browserManager.init();
 			browserManager.addEventListener( BrowserChangeEvent.BROWSER_URL_CHANGE, browserUrlChangeHandler );
+			browserManager.init();
 		}
 		
 		// ========================================
@@ -111,7 +111,7 @@ package org.swizframework.processors
 			regexs[ index ] = regex;
 			
 			// check if mapping matches the current url
-			var url:String = browserManager.url.substr( browserManager.url.indexOf( "#" ) + 1 );
+			var url:String = browserManager.url != null ? browserManager.url.substr( browserManager.url.indexOf( "#" ) + 1 ) : "";
 			var match:Array = url.match( regex );
 			
 			// if a match is found, process the url change
@@ -283,11 +283,11 @@ package org.swizframework.processors
 					}
 				}
 				
-				BrowserManager.getInstance().setFragment( url );
+				browserManager.setFragment( url );
 				
 				if( urlMapping.title != null )
 				{
-					BrowserManager.getInstance().setTitle( constructUrl( urlMapping.title, args ) );
+					browserManager.setTitle( constructUrl( urlMapping.title, args ) );
 				}
 			}
 		}
