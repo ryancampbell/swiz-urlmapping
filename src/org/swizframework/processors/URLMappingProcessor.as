@@ -7,6 +7,7 @@ package org.swizframework.processors
 	import mx.managers.IBrowserManager;
 	
 	import org.swizframework.core.Bean;
+	import org.swizframework.core.ISwiz;
 	import org.swizframework.metadata.MediateMetadataTag;
 	import org.swizframework.metadata.URLMapping;
 	import org.swizframework.reflection.ClassConstant;
@@ -60,16 +61,24 @@ package org.swizframework.processors
 		public function URLMappingProcessor()
 		{
 			super( [ "URLMapping" ], URLMapping );
-			
-			// initialize the browser manager
-			browserManager = BrowserManager.getInstance();
-			browserManager.addEventListener( BrowserChangeEvent.BROWSER_URL_CHANGE, browserUrlChangeHandler );
-			browserManager.init();
 		}
 		
 		// ========================================
 		// public methods
 		// ========================================
+		
+		/**
+		 * Init
+		 */
+		override public function init( swiz:ISwiz ):void
+		{
+			// initialize the browser manager
+			browserManager = BrowserManager.getInstance();
+			browserManager.addEventListener( BrowserChangeEvent.BROWSER_URL_CHANGE, browserUrlChangeHandler );
+			browserManager.init();
+			
+			super.init( swiz );
+		}
 		
 		/**
 		 * Executed when a new [URLMapping] is found
@@ -247,7 +256,7 @@ package org.swizframework.processors
 		 */
 		protected function browserUrlChangeHandler( event:BrowserChangeEvent ):void
 		{
-			var url:String = event.url.substr( event.url.indexOf( "#" ) + 1 );
+			var url:String = event.url != null && event.url.indexOf( "#" ) > -1 ? event.url.substr( event.url.indexOf( "#" ) + 1 ) : "";
 			
 			for ( var i:int = 0; i < regexs.length; i++ )
 			{
