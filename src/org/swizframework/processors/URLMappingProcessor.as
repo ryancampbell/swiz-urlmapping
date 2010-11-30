@@ -8,7 +8,7 @@ package org.swizframework.processors
 	
 	import org.swizframework.core.Bean;
 	import org.swizframework.core.ISwiz;
-	import org.swizframework.metadata.MediateMetadataTag;
+	import org.swizframework.metadata.EventHandlerMetadataTag;
 	import org.swizframework.metadata.URLMapping;
 	import org.swizframework.reflection.ClassConstant;
 	import org.swizframework.reflection.Constant;
@@ -52,6 +52,14 @@ package org.swizframework.processors
 		protected var methods:Array = [];
 		
 		// ========================================
+		// public properties
+		// ========================================
+		
+		public var defaultURL:String;
+		
+		public var defaultTitle:String;
+		
+		// ========================================
 		// constructor
 		// ========================================
 		
@@ -75,7 +83,7 @@ package org.swizframework.processors
 			// initialize the browser manager
 			browserManager = BrowserManager.getInstance();
 			browserManager.addEventListener( BrowserChangeEvent.BROWSER_URL_CHANGE, browserUrlChangeHandler );
-			browserManager.init();
+			browserManager.init( defaultURL, defaultTitle );
 			
 			super.init( swiz );
 		}
@@ -155,16 +163,16 @@ package org.swizframework.processors
 		 */
 		protected function addMediate( urlMapping:URLMapping ):void
 		{
-			if ( urlMapping.host.hasMetadataTagByName( "Mediate" ) )
+			if ( urlMapping.host.hasMetadataTagByName( "Mediate" ) || urlMapping.host.hasMetadataTagByName( "EventHandler" ) )
 			{
-				var mediateTag:MediateMetadataTag = new MediateMetadataTag();
+				var mediateTag:EventHandlerMetadataTag = new EventHandlerMetadataTag();
 				
-				mediateTag.copyFrom( urlMapping.host.getMetadataTagByName( "Mediate" ) );
+				mediateTag.copyFrom( urlMapping.host.getMetadataTagByName( urlMapping.host.hasMetadataTagByName( "Mediate" ) ? "Mediate" : "EventHandler" ) );
 				
 				if( mediateTag.event.substr( -2 ) == ".*" )
 				{
-					var clazz:Class = ClassConstant.getClass( mediateTag.event, swiz.config.eventPackages );
-					var td:TypeDescriptor = TypeCache.getTypeDescriptor( clazz );
+					var clazz:Class = ClassConstant.getClass( swiz.domain, mediateTag.event, swiz.config.eventPackages );
+					var td:TypeDescriptor = TypeCache.getTypeDescriptor( clazz, swiz.domain );
 					
 					for each( var constant:Constant in td.constants )
 					{
@@ -185,16 +193,16 @@ package org.swizframework.processors
 		 */
 		protected function removeMediate( urlMapping:URLMapping ):void
 		{
-			if ( urlMapping.host.hasMetadataTagByName( "Mediate" ) )
+			if ( urlMapping.host.hasMetadataTagByName( "Mediate" ) || urlMapping.host.hasMetadataTagByName( "EventHandler" ) )
 			{
-				var mediateTag:MediateMetadataTag = new MediateMetadataTag();
+				var mediateTag:EventHandlerMetadataTag = new EventHandlerMetadataTag();
 				
-				mediateTag.copyFrom( urlMapping.host.getMetadataTagByName( "Mediate" ) );
+				mediateTag.copyFrom( urlMapping.host.getMetadataTagByName( urlMapping.host.hasMetadataTagByName( "Mediate" ) ? "Mediate" : "EventHandler" ) );
 				
 				if( mediateTag.event.substr( -2 ) == ".*" )
 				{
-					var clazz:Class = ClassConstant.getClass( mediateTag.event, swiz.config.eventPackages );
-					var td:TypeDescriptor = TypeCache.getTypeDescriptor( clazz );
+					var clazz:Class = ClassConstant.getClass( swiz.domain, mediateTag.event, swiz.config.eventPackages );
+					var td:TypeDescriptor = TypeCache.getTypeDescriptor( clazz, swiz.domain );
 					
 					for each( var constant:Constant in td.constants )
 					{
@@ -336,7 +344,7 @@ package org.swizframework.processors
 		{
 			if( swiz.config.strict && ClassConstant.isClassConstant( value ) )
 			{
-				return ClassConstant.getConstantValue( ClassConstant.getClass( value, swiz.config.eventPackages ), ClassConstant.getConstantName( value ) );
+				return ClassConstant.getConstantValue( swiz.domain, ClassConstant.getClass( swiz.domain, value, swiz.config.eventPackages ), ClassConstant.getConstantName( value ) );
 			}
 			else
 			{
